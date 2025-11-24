@@ -1,10 +1,11 @@
 import React from "react";
-import "./App.css";
+import "./styles/App.css";
+import Home from "./pages/Home.jsx";
 
 function App() {
   return (
     <div>
-      <h1>Hello ListenLab</h1>
+      <Home />
     </div>
   );
 }

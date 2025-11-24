@@ -14,6 +14,11 @@
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+body {
+  font-family: "Inter", "Poppins", sans-serif;
+  color: #333; /* soft dark text */
+  line-height: 1.6;
+}
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
