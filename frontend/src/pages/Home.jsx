@@ -82,16 +82,35 @@ const Home = () => {
             conversations while keeping things engaging and gamified for
             students.
           </Typography>
+
+          {/* Gradient Join Now Button (same as Hero) */}
           <Button
             variant="contained"
+            size="large"
+            disableRipple
             sx={{
-              bgcolor: "#6C63FF",
-              "&:hover": { bgcolor: "#5a54d1" },
+              mt: 2,
+              background:
+                "linear-gradient(270deg, #FFB997, #FFD9C8, #FFCBB3, #FFE0B2, #FFB997)",
+              backgroundSize: "800% 800%",
+              color: "#fff",
               fontWeight: 600,
               py: 1.5,
               px: 4,
               borderRadius: 2,
               textTransform: "none",
+              transition: "transform 0.3s ease",
+              animation: "gradientFlow 12s ease infinite",
+              boxShadow: "none",
+              outline: "none",
+              "&:focus": { boxShadow: "none" },
+              "&:active": { boxShadow: "none" },
+              "&:hover": { transform: "scale(1.05)" },
+              "@keyframes gradientFlow": {
+                "0%": { backgroundPosition: "0% 50%" },
+                "50%": { backgroundPosition: "100% 50%" },
+                "100%": { backgroundPosition: "0% 50%" },
+              },
             }}
           >
             Join Now
@@ -116,7 +135,7 @@ const Home = () => {
                 "linear-gradient(135deg, #FFD9C8 0%, #FFE8D9 50%, #FFF1EC 100%)",
               boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
               display: "inline-block",
-              overflow: "hidden", // ensures rounded corners
+              overflow: "hidden",
             }}
           >
             <img

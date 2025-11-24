@@ -19,10 +19,11 @@ const Navbar = () => {
           sx={{
             display: "flex",
             justifyContent: "space-between",
+            alignItems: "center",
             px: { xs: 2, md: 4 },
           }}
         >
-          {/* Logo — updated aesthetic soft psychology vibe */}
+          {/* Logo — left side */}
           <Typography
             variant="h4"
             sx={{
@@ -37,8 +38,16 @@ const Navbar = () => {
             ListenLab
           </Typography>
 
-          {/* Navigation Links */}
-          <Box sx={{ display: "flex", gap: 3 }}>
+          {/* Navigation Links — centered */}
+          <Box
+            sx={{
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
+              display: "flex",
+              gap: 5, // space between links
+            }}
+          >
             {["Home", "About", "Contact"].map((text) => (
               <Link
                 key={text}
@@ -81,7 +90,7 @@ const Navbar = () => {
       </AppBar>
 
       {/* Page Content Wrapper */}
-      <Box sx={{ pt: "90px" }}>{/* your content */}</Box>
+      <Box sx={{ pt: "90px" }}>{/* your content goes here */}</Box>
     </>
   );
 };

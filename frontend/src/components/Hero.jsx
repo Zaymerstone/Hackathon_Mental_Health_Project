@@ -1,3 +1,4 @@
+// src/components/Hero.jsx
 import React from "react";
 import { Box, Typography, Button } from "@mui/material";
 import heroImage from "../assets/contemplative_lake.png";
@@ -59,10 +60,33 @@ const Hero = () => {
           Connect with psychology students for free, safe, and meaningful
           conversations.
         </Typography>
+
+        {/* Gradient Button with smooth flowing animation */}
         <Button
           variant="contained"
           size="large"
-          sx={{ mt: 2, bgcolor: "#6C63FF", "&:hover": { bgcolor: "#5a54d1" } }}
+          sx={{
+            mt: 2,
+            background:
+              "linear-gradient(270deg, #FFB997, #FFD9C8, #FFCBB3, #FFE0B2, #FFB997)",
+            backgroundSize: "800% 800%",
+            color: "#fff",
+            fontWeight: 600,
+            py: 1.5,
+            px: 4,
+            borderRadius: 2,
+            textTransform: "none",
+            transition: "transform 0.3s ease",
+            animation: "gradientFlow 12s ease infinite",
+            "&:hover": {
+              transform: "scale(1.05)",
+            },
+            "@keyframes gradientFlow": {
+              "0%": { backgroundPosition: "0% 50%" },
+              "50%": { backgroundPosition: "100% 50%" },
+              "100%": { backgroundPosition: "0% 50%" },
+            },
+          }}
         >
           Get Started
         </Button>
