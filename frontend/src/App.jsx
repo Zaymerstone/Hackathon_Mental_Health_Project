@@ -1,11 +1,16 @@
 import React from "react";
 import "./styles/App.css";
 import Home from "./pages/Home.jsx";
+import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer.jsx";
+import Box from "@mui/material/Box";
 
 function App() {
   return (
-    <div>
+    <div className="page-container">
+      <Navbar />
       <Home />
+      <Footer />
     </div>
   );
 }
