@@ -1,7 +1,11 @@
 // src/pages/Home.jsx
 import React from "react";
+import Navbar from "../components/Navbar.jsx";
+import Footer from "../components/Footer.jsx";
+
 import Hero from "../components/Hero.jsx";
 import Features from "../components/Features.jsx";
+
 import { Box, Typography, Grid, Paper, Button } from "@mui/material";
 import sessionImg from "../assets/session.png";
 
@@ -29,7 +33,7 @@ const Home = () => {
       {/* Features Section */}
       <Features />
 
-      {/* Illustration / Call to Action Section */}
+      {/* Illustration / CTA Section */}
       <Box
         sx={{
           py: 12,
@@ -46,7 +50,6 @@ const Home = () => {
           mb: 8,
         }}
       >
-        {/* Left side text */}
         <Box
           sx={{
             flex: 1,
@@ -68,6 +71,7 @@ const Home = () => {
           >
             Why ListenLab?
           </Typography>
+
           <Typography
             variant="body1"
             sx={{
@@ -83,7 +87,6 @@ const Home = () => {
             students.
           </Typography>
 
-          {/* Gradient Join Now Button (same as Hero) */}
           <Button
             variant="contained"
             size="large"
@@ -102,22 +105,13 @@ const Home = () => {
               transition: "transform 0.3s ease",
               animation: "gradientFlow 12s ease infinite",
               boxShadow: "none",
-              outline: "none",
-              "&:focus": { boxShadow: "none" },
-              "&:active": { boxShadow: "none" },
               "&:hover": { transform: "scale(1.05)" },
-              "@keyframes gradientFlow": {
-                "0%": { backgroundPosition: "0% 50%" },
-                "50%": { backgroundPosition: "100% 50%" },
-                "100%": { backgroundPosition: "0% 50%" },
-              },
             }}
           >
             Join Now
           </Button>
         </Box>
 
-        {/* Right side illustration */}
         <Box
           sx={{
             flex: 1,
@@ -134,7 +128,6 @@ const Home = () => {
               background:
                 "linear-gradient(135deg, #FFD9C8 0%, #FFE8D9 50%, #FFF1EC 100%)",
               boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
-              display: "inline-block",
               overflow: "hidden",
             }}
           >
@@ -152,14 +145,8 @@ const Home = () => {
         </Box>
       </Box>
 
-      {/* Testimonials Section */}
-      <Box
-        sx={{
-          py: 12,
-          px: 2,
-          bgcolor: "transparent",
-        }}
-      >
+      {/* Testimonials */}
+      <Box sx={{ py: 12, px: 2 }}>
         <Typography
           variant="h4"
           align="center"
@@ -173,6 +160,7 @@ const Home = () => {
         >
           What People Say
         </Typography>
+
         <Grid container spacing={6} justifyContent="center">
           {testimonials.map((t, idx) => (
             <Grid item xs={12} md={4} key={idx}>
@@ -183,7 +171,7 @@ const Home = () => {
                   textAlign: "center",
                   borderRadius: 3,
                   bgcolor: "#FFF3E0",
-                  transition: "all 0.4s ease-in-out",
+                  transition: "0.4s ease",
                   "&:hover": {
                     transform: "translateY(-8px)",
                     boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
@@ -201,6 +189,7 @@ const Home = () => {
                 >
                   "{t.feedback}"
                 </Typography>
+
                 <Typography
                   variant="subtitle1"
                   sx={{

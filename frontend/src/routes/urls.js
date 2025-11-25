@@ -4,24 +4,26 @@ export const URLS = Object.freeze({
   HOME: "/",
   LOGIN: "/login",
   REGISTER: "/register",
-  ROLE_SELECTION: "/role-selection",
 
-  // Student-specific pages
+  // Student
+  STUDENT_BASE: "/student",
   STUDENT_DASHBOARD: "/student/dashboard",
   STUDENT_PROFILE: "/student/profile",
   STUDENT_XP_BADGES: "/student/xp-badges",
   STUDENT_REFLECTIONS: "/student/reflections",
   STUDENT_MATCHING: "/student/matching",
 
-  // Help-Seeker-specific pages
-  HELPER_DASHBOARD: "/help-seeker/dashboard",
-  HELPER_PROFILE: "/help-seeker/profile", // optional if you want profiles for help-seekers
-  HELPER_MATCHING: "/help-seeker/matching",
-  HELPER_FEEDBACK: "/help-seeker/feedback",
+  // Help-seeker
+  HELP_BASE: "/help-seeker",
+  HELP_DASHBOARD: "/help-seeker/dashboard",
+  HELP_PROFILE: "/help-seeker/profile",
+  HELP_MATCHING: "/help-seeker/matching",
+  HELP_FEEDBACK: "/help-seeker/feedback",
 
-  // Conversation / Chat
-  CHAT_SESSION: "/chat/:sessionId",
-  SESSION_SUMMARY: "/chat/:sessionId/summary",
+  // Conversation / Chat (route definitions use placeholders)
+  SESSIONS_BASE: "/sessions",
+  CHAT_SESSION: "/sessions/:sessionId",
+  SESSION_SUMMARY: "/sessions/:sessionId/summary",
 
   // Safety & Crisis
   SAFETY_GUIDELINES: "/safety-guidelines",
@@ -39,4 +41,23 @@ export const URLS = Object.freeze({
   NOT_FOUND: "*",
 });
 
-// add some URLS later
+// helper builders for generating URLs at runtime (safe)
+// helpers function to help us navigate to URLs
+export const build = {
+  chat(sessionId) {
+    if (!sessionId) throw new Error("build.chat requires sessionId");
+    return `/sessions/${sessionId}`;
+  },
+  chatSummary(sessionId) {
+    if (!sessionId) throw new Error("build.chatSummary requires sessionId");
+    return `/sessions/${sessionId}/summary`;
+  },
+  student(path = "") {
+    if (!path) return "/student";
+    return `/student/${path.replace(/^\/+/, "")}`;
+  },
+  help(path = "") {
+    if (!path) return "/help-seeker";
+    return `/help-seeker/${path.replace(/^\/+/, "")}`;
+  },
+};

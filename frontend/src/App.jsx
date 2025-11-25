@@ -1,15 +1,13 @@
 import React from "react";
+import TestRedux from "./Test.jsx";
 import "./styles/App.css";
-import Home from "./pages/Home.jsx";
-import Navbar from "./components/Navbar.jsx";
-import Footer from "./components/Footer.jsx";
+import AppRouter from "./AppRouter.jsx";
 
 function App() {
   return (
     <div className="page-container">
-      <Navbar />
-      <Home />
-      <Footer />
+      <AppRouter />
+      {/* <TestRedux /> */}
     </div>
   );
 }
