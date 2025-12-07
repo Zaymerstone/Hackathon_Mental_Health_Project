@@ -47,6 +47,8 @@ const SignUpStudent = () => {
           data: {
             full_name: name,
             role: "student",
+            institution_name: institutionName,
+            program_name: programName,
           },
         },
       });
@@ -71,21 +73,63 @@ const SignUpStudent = () => {
         return;
       }
 
-      const { error: profileError } = await supabase
-        .from("student_profile")
-        .insert({
-          id: user.id,
-          full_name: name,
-          institution_name: institutionName,
-          program_name: programName,
-        });
+      // Wait a bit for the session to be established
+      // Then try to insert the profile
+      // If email confirmation is required, the profile will be created after email confirmation
+      // via a database trigger, or we handle it differently
 
-      if (profileError) {
+      // Check if we have an active session
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session && session.user) {
+        // User has an active session, try to insert profile
+        // NOTE: This requires an RLS policy that allows:
+        // INSERT ON student_profile FOR authenticated users WHERE id = auth.uid()
+        const { error: profileError } = await supabase
+          .from("student_profile")
+          .insert({
+            id: user.id,
+            full_name: name,
+            institution_name: institutionName,
+            program_name: programName,
+          });
+
+        if (profileError) {
+          console.error("Profile insert error:", profileError);
+
+          // Check if profile already exists (maybe created by a database trigger)
+          const { data: existingProfile } = await supabase
+            .from("student_profile")
+            .select("id")
+            .eq("id", user.id)
+            .single();
+
+          if (!existingProfile) {
+            // Profile doesn't exist and couldn't be created due to RLS policy
+            // SOLUTION: You need to either:
+            // 1. Create a database trigger that auto-creates student_profile on user signup
+            // 2. Add an RLS policy: CREATE POLICY "Users can insert own profile" ON student_profile FOR INSERT TO authenticated WITH CHECK (id = auth.uid());
+            toast({
+              title: "Profile setup failed",
+              description: `RLS policy error: ${profileError.message}. Please ensure your database has the proper RLS policies or triggers set up.`,
+              variant: "destructive",
+            });
+            return;
+          }
+          // Profile exists (created by trigger), continue
+        }
+      } else {
+        // No active session - email confirmation required
+        // The profile should be created via a database trigger after email confirmation
+        // OR you need to handle profile creation after the user confirms their email
         toast({
-          title: "Profile setup failed",
-          description: profileError.message,
-          variant: "destructive",
+          title: "Check your email",
+          description:
+            "Please confirm your email address to complete signup. Your profile will be created after you confirm your email.",
         });
+        navigate("/login/student");
         return;
       }
 

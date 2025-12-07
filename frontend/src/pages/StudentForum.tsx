@@ -1,75 +1,167 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  Heart, 
+import { supabase } from "@/supabase-client";
+import {
+  Heart,
   MessageCircle,
   Plus,
   User,
   Clock,
   ChevronRight,
-  X
+  X,
 } from "lucide-react";
+
+interface ForumPost {
+  id: number;
+  title: string;
+  content: string;
+  created_at: string;
+  student_id: string;
+  student_profile?: {
+    full_name: string;
+  };
+}
 
 const StudentForum = () => {
   const [showCreatePost, setShowCreatePost] = useState(false);
   const [newPostTitle, setNewPostTitle] = useState("");
   const [newPostContent, setNewPostContent] = useState("");
+  const [posts, setPosts] = useState<ForumPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  // Mock data - will be replaced with real data from Supabase
-  const posts = [
-    {
-      id: "1",
-      title: "How do you handle silence during sessions?",
-      author: "Sarah M.",
-      university: "Sorbonne University",
-      preview: "I've noticed that sometimes people need space to think, but I'm not sure how long to wait before...",
-      timestamp: "2 hours ago",
-      replies: 8,
-    },
-    {
-      id: "2",
-      title: "Tips for recognizing when to escalate?",
-      author: "James L.",
-      university: "University of Paris",
-      preview: "I had a session yesterday where I wasn't sure if the person needed professional help or just wanted to vent...",
-      timestamp: "5 hours ago",
-      replies: 12,
-    },
-    {
-      id: "3",
-      title: "Cultural sensitivity in active listening",
-      author: "Maya K.",
-      university: "Sciences Po",
-      preview: "Coming from a multicultural background, I've noticed that listening styles can vary significantly across cultures...",
-      timestamp: "1 day ago",
-      replies: 15,
-    },
-    {
-      id: "4",
-      title: "Managing your own emotions during heavy sessions",
-      author: "Alex T.",
-      university: "Sorbonne University",
-      preview: "Sometimes the stories I hear really affect me. How do you all practice self-care and maintain boundaries...",
-      timestamp: "2 days ago",
-      replies: 23,
-    },
-    {
-      id: "5",
-      title: "Best practices for ending a session gracefully",
-      author: "Emma J.",
-      university: "University of Paris",
-      preview: "I sometimes struggle with knowing how to wrap up a conversation in a way that feels natural and supportive...",
-      timestamp: "3 days ago",
-      replies: 9,
-    },
-  ];
+  // Fetch posts from Supabase
+  useEffect(() => {
+    fetchPosts();
+  }, []);
 
-  const handlePublish = () => {
-    // UI only - no actual submission
-    setShowCreatePost(false);
-    setNewPostTitle("");
-    setNewPostContent("");
+  const fetchPosts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const { data, error: fetchError } = await supabase
+        .from("forum_posts")
+        .select(
+          `
+          id,
+          title,
+          content,
+          created_at,
+          student_id,
+          student_profile:student_id (
+            full_name
+          )
+        `
+        )
+        .order("created_at", { ascending: false });
+
+      if (fetchError) {
+        throw fetchError;
+      }
+
+      // Transform the nested structure
+      const transformedPosts = (data || []).map(
+        (post: {
+          id: number;
+          title: string;
+          content: string;
+          created_at: string;
+          student_id: string;
+          student_profile:
+            | { full_name: string }
+            | { full_name: string }[]
+            | null;
+        }) => ({
+          ...post,
+          student_profile: Array.isArray(post.student_profile)
+            ? post.student_profile[0]
+            : post.student_profile,
+        })
+      );
+
+      setPosts(transformedPosts);
+    } catch (err) {
+      console.error("Error fetching posts:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch posts";
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!newPostTitle.trim() || !newPostContent.trim()) {
+      setError("Please fill in both title and content");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setError(null);
+
+      // Get current user
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+
+      if (authError || !user) {
+        throw new Error("You must be logged in to create a post");
+      }
+
+      // Insert new post
+      const { error: insertError } = await supabase.from("forum_posts").insert({
+        student_id: user.id,
+        title: newPostTitle.trim(),
+        content: newPostContent.trim(),
+      });
+
+      if (insertError) {
+        throw insertError;
+      }
+
+      // Reset form and close modal
+      setShowCreatePost(false);
+      setNewPostTitle("");
+      setNewPostContent("");
+
+      // Refetch posts
+      await fetchPosts();
+    } catch (err) {
+      console.error("Error creating post:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to create post";
+      setError(errorMessage);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Helper function to format timestamp
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return "just now";
+    if (diffInSeconds < 3600)
+      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 604800)
+      return `${Math.floor(diffInSeconds / 86400)} days ago`;
+
+    return date.toLocaleDateString();
+  };
+
+  // Helper function to truncate content
+  const truncateContent = (content: string, maxLength: number = 150) => {
+    if (content.length <= maxLength) return content;
+    return content.substring(0, maxLength).trim() + "...";
   };
 
   return (
@@ -88,10 +180,14 @@ const StudentForum = () => {
             </Link>
             <div className="flex items-center gap-4">
               <Link to="/dashboard/student">
-                <Button variant="ghost" size="sm">Dashboard</Button>
+                <Button variant="ghost" size="sm">
+                  Dashboard
+                </Button>
               </Link>
               <Link to="/">
-                <Button variant="ghost" size="sm">Sign Out</Button>
+                <Button variant="ghost" size="sm">
+                  Sign Out
+                </Button>
               </Link>
             </div>
           </div>
@@ -103,11 +199,16 @@ const StudentForum = () => {
         <div className="mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-foreground mb-2">Peer Support Forum</h1>
-              <p className="text-muted-foreground">For Psychology Students — Share experiences, ask questions, grow together.</p>
+              <h1 className="text-2xl font-bold text-foreground mb-2">
+                Peer Support Forum
+              </h1>
+              <p className="text-muted-foreground">
+                For Psychology Students — Share experiences, ask questions, grow
+                together.
+              </p>
             </div>
-            <Button 
-              variant="hero" 
+            <Button
+              variant="hero"
               onClick={() => setShowCreatePost(true)}
               className="shrink-0"
             >
@@ -117,48 +218,68 @@ const StudentForum = () => {
           </div>
         </div>
 
+        {/* Error State */}
+        {error && (
+          <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-4 mb-6">
+            <p className="text-sm text-destructive">{error}</p>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">Loading posts...</p>
+          </div>
+        )}
+
         {/* Posts List */}
-        <div className="space-y-4">
-          {posts.map((post) => (
-            <Link 
-              key={post.id}
-              to={`/student-forum/post/${post.id}`}
-              className="block"
-            >
-              <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft hover:shadow-md hover:border-primary/20 transition-all duration-300 group">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {post.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {post.preview}
-                    </p>
-                    <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5" />
-                        <span>{post.author}</span>
+        {!loading && (
+          <div className="space-y-4">
+            {posts.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">
+                  No posts yet. Be the first to create one!
+                </p>
+              </div>
+            ) : (
+              posts.map((post) => (
+                <Link
+                  key={post.id}
+                  to={`/student-forum/post/${post.id}`}
+                  className="block"
+                >
+                  <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-soft hover:shadow-md hover:border-primary/20 transition-all duration-300 group">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
+                          {post.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                          {truncateContent(post.content)}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1.5">
+                            <User className="w-3.5 h-3.5" />
+                            <span>
+                              {post.student_profile?.full_name ||
+                                post.student_id}
+                            </span>
+                          </div>
+                          <span className="text-border">•</span>
+                          <div className="flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5" />
+                            <span>{formatTimestamp(post.created_at)}</span>
+                          </div>
+                        </div>
                       </div>
-                      <span className="text-border">•</span>
-                      <span>{post.university}</span>
-                      <span className="text-border">•</span>
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-3.5 h-3.5" />
-                        <span>{post.timestamp}</span>
-                      </div>
-                      <span className="text-border">•</span>
-                      <div className="flex items-center gap-1.5">
-                        <MessageCircle className="w-3.5 h-3.5" />
-                        <span>{post.replies} replies</span>
-                      </div>
+                      <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
                     </div>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+                </Link>
+              ))
+            )}
+          </div>
+        )}
       </main>
 
       {/* Create Post Modal */}
@@ -166,16 +287,24 @@ const StudentForum = () => {
         <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-card rounded-2xl p-6 border border-border/50 shadow-lg w-full max-w-lg">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-foreground">Create New Post</h2>
-              <button 
+              <h2 className="text-xl font-semibold text-foreground">
+                Create New Post
+              </h2>
+              <button
                 onClick={() => setShowCreatePost(false)}
                 className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center hover:bg-secondary/80 transition-colors"
               >
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             </div>
-            
+
             <div className="space-y-4">
+              {error && showCreatePost && (
+                <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-3">
+                  <p className="text-sm text-destructive">{error}</p>
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Post Title
@@ -183,39 +312,54 @@ const StudentForum = () => {
                 <input
                   type="text"
                   value={newPostTitle}
-                  onChange={(e) => setNewPostTitle(e.target.value)}
+                  onChange={(e) => {
+                    setNewPostTitle(e.target.value);
+                    setError(null);
+                  }}
                   placeholder="What's on your mind?"
                   className="w-full px-4 py-3 rounded-xl bg-secondary border border-border/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  disabled={submitting}
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Content
                 </label>
                 <textarea
                   value={newPostContent}
-                  onChange={(e) => setNewPostContent(e.target.value)}
+                  onChange={(e) => {
+                    setNewPostContent(e.target.value);
+                    setError(null);
+                  }}
                   placeholder="Share your thoughts, questions, or experiences..."
                   rows={5}
                   className="w-full px-4 py-3 rounded-xl bg-secondary border border-border/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                  disabled={submitting}
                 />
               </div>
-              
+
               <div className="flex gap-3 pt-2">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowCreatePost(false)}
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowCreatePost(false);
+                    setError(null);
+                    setNewPostTitle("");
+                    setNewPostContent("");
+                  }}
                   className="flex-1"
+                  disabled={submitting}
                 >
                   Cancel
                 </Button>
-                <Button 
-                  variant="hero" 
+                <Button
+                  variant="hero"
                   onClick={handlePublish}
                   className="flex-1"
+                  disabled={submitting}
                 >
-                  Publish (UI Only)
+                  {submitting ? "Publishing..." : "Publish"}
                 </Button>
               </div>
             </div>
