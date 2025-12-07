@@ -23,14 +23,14 @@ const Header = ({ onGetStartedClick }: HeaderProps) => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <Link 
-              to="/for-universities" 
+            <Link
+              to="/for-universities"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               For Universities
             </Link>
-            <Link 
-              to="/safety" 
+            <Link
+              to="/safety"
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Safety
@@ -44,11 +44,7 @@ const Header = ({ onGetStartedClick }: HeaderProps) => {
                 Sign In
               </Button>
             </Link>
-            <Button 
-              variant="hero" 
-              size="sm"
-              onClick={onGetStartedClick}
-            >
+            <Button variant="hero" size="sm" onClick={onGetStartedClick}>
               Get Started
             </Button>
           </div>
