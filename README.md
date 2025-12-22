@@ -231,6 +231,24 @@ To ensure safety and protect sensitive environment variables, we kindly ask you 
 
 ---
 
+## 🧪 How to Test the Application
+
+Testing ListenLab requires **two users**:
+
+1. **Help-Seeker**
+   - Create a help-seeker account (username only)
+   - Join the chat queue when ready to start a session
+
+2. **Student Listener**
+   - Create a student account with a verified email
+   - Complete all **six training modules**
+   - Once training is complete, start accepting chats
+   - Connect with the waiting help-seeker in the queue
+
+> Once both users are online, chat sessions will begin, demonstrating full functionality of the peer-support system.
+
+---
+
 ## 👤 Authors
 
 **Nesterov Egor**  
