@@ -221,9 +221,14 @@ Support embedded within education and social systems.
 
 ---
 
-## 👤 Author
+## 👤 Authors
 
 **Nesterov Egor**  
 BSc in Computer Science  
 MSc Cognitive Science (Cognitive Neuroscience & AI)  
 Full-Stack Developer | Aspiring ML / AI Engineer
+
+**Zalait Omri**
+BSc in Cognitive Science
+MSc Cognitive Science (Society)
+Learning Engineer | Aspiring Cognitive Scientist
