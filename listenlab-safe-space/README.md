@@ -213,11 +213,21 @@ Support embedded within education and social systems.
 - **Authentication:** Role-based (anonymous users & verified students)
 - **Styling & UI:** Tailwind CSS
 - **Real-Time Communication:** Live chat infrastructure
-- **Deployment:** Cloud-hosted web platform
+- **Deployment:** Cloud-hosted web platform Vercel
 - **AI Assistance (Design-Level):**
   - Used for ideation and UX refinement
   - Planned integration for **risk detection only**
   - No advice, no automated counseling
+
+---
+
+## 💻 Hackathon Instructions
+
+To ensure safety and protect sensitive environment variables, we kindly ask you to **test and explore ListenLab via the hosted deployment on Vercel**:
+
+[🔗 Open ListenLab on Vercel](https://hackathon-mental-health-project-bk9.vercel.app/)
+
+> All functionality, including user roles, chat sessions, and portfolio tracking, can be experienced directly on this hosted platform without local setup.
 
 ---
 
@@ -228,7 +238,7 @@ BSc in Computer Science
 MSc Cognitive Science (Cognitive Neuroscience & AI)  
 Full-Stack Developer | Aspiring ML / AI Engineer
 
-**Zalait Omri**
-BSc in Cognitive Science
-MSc Cognitive Science (Society)
+**Zalait Omri**  
+BSc in Cognitive Science  
+MSc Cognitive Science (Society)  
 Learning Engineer | Aspiring Cognitive Scientist
